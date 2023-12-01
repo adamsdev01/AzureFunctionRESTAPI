@@ -8,11 +8,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace GetEmployeesFunction
+namespace EmployeeFunctions
 {
-    public static class Function1
+    public class CreateEmployeeFunction
     {
-        [FunctionName("Function1")]
+        public readonly ILogger _logger;
+
+        public CreateEmployeeFunction(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger<CreateEmployeeFunction>();
+        }
+        [FunctionName("CreateEmployee")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
