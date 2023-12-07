@@ -37,11 +37,12 @@ namespace EmployeeFunctions
             var employeesList = new List<Employee>();
             try
             {
-                string defaultConnection = Environment.GetEnvironmentVariable("DbConnection");
+                //string defaultConnection = Environment.GetEnvironmentVariable("DbConnection");
+                var str = Environment.GetEnvironmentVariable("sqldb_connection");
 
-                _logger.LogInformation(defaultConnection);
+                _logger.LogInformation(str);
                 var options = new DbContextOptionsBuilder<EmployeeDbContext>();
-                options.UseSqlServer(defaultConnection);
+                options.UseSqlServer(str);
 
                 var _dbContext = new EmployeeDbContext(options.Options);
 
