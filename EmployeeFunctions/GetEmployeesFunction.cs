@@ -12,6 +12,10 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using System.Net;
 
 namespace EmployeeFunctions
 {
@@ -25,6 +29,9 @@ namespace EmployeeFunctions
         }
 
         [FunctionName("GetEmployees")]
+        [OpenApiOperation(operationId: "Run")]
+        [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
         public async Task<List<Employee>> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "GetEmployees")] HttpRequest req)
         {
             var employeesList = new List<Employee>();
