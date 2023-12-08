@@ -1,0 +1,99 @@
+﻿@page "/fetchdata"
+@inject HttpClient Http
+
+<PageTitle>Employee Data</PageTitle>
+
+<h1>Employee Data</h1>
+
+<p>Testing interaction with Azure Functions API.</p>
+
+<EditForm Model="createEmployee" OnValidSubmit="HandleCreate">
+    <InputDate class="form-control" @bind-Value="createEmployee.DOB"></InputDate>
+    <InputText class="form-control" @bind-Value="createEmployee.FirstName"></InputText>
+    <InputText class="form-control" @bind-Value="createEmployee.LastName"></InputText>
+    <br />
+    <button type="submit" class="btn btn-primary">
+        <span class="oi oi-plus"></span>
+        SAVE
+    </button>
+</EditForm>
+<br />
+<br />
+
+@if (employees == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date Of Birth</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var employee in employees)
+            {
+                <tr>
+                    <td>@employee.DOB.ToShortDateString()</td>
+                    <td>@employee.FirstName</td>
+                    <td>@employee.LastName</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="eventArgs => { DeleteClicked(employee); }">
+                            DELETE
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Employee[]? employees;
+    private CreateEmployeeItem createEmployee = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await Http.GetFromJsonAsync<Employee[]>("api/employee");
+    }
+
+    private async Task HandleCreate()
+    {
+        var response = await Http.PostAsJsonAsync<CreateEmployeeItem>("api/employee", createEmployee);
+        if (response.IsSuccessStatusCode)
+        {
+            await OnInitializedAsync();
+        }
+    }
+
+    // async Task UpdateClicked(Employee emp)
+    // {
+    //     UpdateEmployeeItem updateEmployee = new UpdateEmployeeItem()
+    //     {
+    //         FirstName = emp.FirstName,
+    //         LastName = emp.LastName
+    //     }
+
+    //     var response = await Http.PutAsJsonAsync<UpdateEmployeeItem>($"api/employee/{emp.Id}", updateEmployee);
+    //     if (response.IsSuccessStatusCode)
+    //     {
+    //         await OnInitializedAsync();
+    //     }
+    // }
+
+    async Task DeleteClicked(Employee emp)
+    {
+        var response = await Http.DeleteAsync($"api/employee/{emp.EmployeeCode}");
+        if (response.IsSuccessStatusCode)
+        {
+            await OnInitializedAsync();
+        }
+    }
+
+   
+}

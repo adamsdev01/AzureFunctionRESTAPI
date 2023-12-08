@@ -20,7 +20,7 @@ namespace EmployeeFunctions
 
         [FunctionName("GetEmployees")]
         public static async Task<IActionResult> GetEmployees(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "employees")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "employee")] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("Getting all employees.");
@@ -30,7 +30,7 @@ namespace EmployeeFunctions
 
         [FunctionName("GetEmployeeByEmployeeCode")]
         public static async Task<IActionResult> GetEmployeeByEmployeeCode(
-          [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "employeeByEmployeeCode/{employeeCode}")] 
+          [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "employee/{employeeCode}")] 
             HttpRequest req, ILogger log, string employeeCode)
         {
             log.LogInformation($"Get employee record with employee code: {employeeCode}");
@@ -71,12 +71,12 @@ namespace EmployeeFunctions
 
         [FunctionName("PutEmployee")]
         public static async Task<IActionResult> PutEmployee(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "employeeByEmployeeCode/{employeeCode}")] 
-            HttpRequest req, ILogger log, string employeeCode)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "employee/{Id}")] 
+            HttpRequest req, ILogger log, int Id)
         {
-            log.LogInformation($"Updating employee record with employee code: {employeeCode}");
+            log.LogInformation($"Updating employee record with Id: {Id}");
 
-            var employeeResult = employeesList.FirstOrDefault(e => e.EmployeeCode == employeeCode);
+            var employeeResult = employeesList.FirstOrDefault(e => e.Id == Id);
             if (employeeResult == null)
             {
                 return new NotFoundResult();
@@ -96,7 +96,7 @@ namespace EmployeeFunctions
 
         [FunctionName("DeleteEmployee")]
         public static async Task<IActionResult> DeleteEmployee(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "employeeByEmployeeCode/{employeeCode}")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "employee/{employeeCode}")]
             HttpRequest req, ILogger log, string employeeCode)
         {
             log.LogInformation($"Deleting employee record with employee code: {employeeCode}");
