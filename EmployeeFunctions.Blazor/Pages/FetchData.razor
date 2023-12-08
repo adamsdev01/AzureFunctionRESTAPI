@@ -88,7 +88,7 @@ else
 
     async Task DeleteClicked(Employee emp)
     {
-        var response = await Http.DeleteAsync($"api/employee/{emp.EmployeeCode}");
+        var response = await Http.DeleteAsync($"api/employee/{emp.Id}");
         if (response.IsSuccessStatusCode)
         {
             await OnInitializedAsync();

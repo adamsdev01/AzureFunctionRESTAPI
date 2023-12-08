@@ -44,16 +44,12 @@ namespace EmployeeFunctions.Models
 
     internal class CreateEmployeeItem
     {
-        [JsonPropertyName("id")]
         public int Id { get; set; } 
 
-        [JsonPropertyName("employeeCode")]
         public string EmployeeCode { get; set; }
 
-        [JsonPropertyName("firstName")]
         public string FirstName { get; set; }
 
-        [JsonPropertyName("lastName")]
         public string LastName { get; set; }
 
         [JsonPropertyName("dob")]
