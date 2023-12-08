@@ -33,8 +33,27 @@ namespace EmployeeFunctions
             ILogger log)
         {
             log.LogInformation("Getting all employees.");
-            return new OkObjectResult(employeesList);
-            
+
+            string requestData = await new StreamReader(req.Body).ReadToEndAsync();
+
+            // deserialize into Employee Item
+            //var data = JsonConvert.DeserializeObject<CreateEmployeeItem>(requestData);
+
+            // Retrieve connection string from configuration
+            string connectionString = Configuration.GetConnectionString("SqlConnectionString");
+
+            // Create a DbContext with the connection string
+            var options = new DbContextOptionsBuilder<EmployeeDbContext>()
+                .UseSqlServer(connectionString)
+                .Options;
+
+            using (var dbContext = new EmployeeDbContext(options))
+            {
+                // Retrieve all employees
+                List<Employee> allEmployees = await dbContext.EmployeeSet.ToListAsync();
+                return new OkObjectResult(allEmployees);
+
+            }
         }
 
         [FunctionName("GetEmployeeByEmployeeCode")]
