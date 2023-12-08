@@ -10,10 +10,6 @@ using Newtonsoft.Json;
 using EmployeeFunctions.Models;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Azure.Functions.Worker.Extensions.Sql;
-using System.Net;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.IdentityModel.Protocols;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 
