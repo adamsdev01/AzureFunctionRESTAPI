@@ -119,7 +119,7 @@ namespace EmployeeFunctions
 
         [FunctionName("DeleteEmployee")]
         public static async Task<IActionResult> DeleteEmployee(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "employee/{employeeCode}")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "employee/{Id}")]
             HttpRequest req, ILogger log, int Id)
         {
             log.LogInformation($"Deleting employee record with employee Id: {Id}");
