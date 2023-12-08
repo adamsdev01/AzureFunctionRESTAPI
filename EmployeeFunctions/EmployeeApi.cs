@@ -10,13 +10,26 @@ using Newtonsoft.Json;
 using EmployeeFunctions.Models;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Azure.Functions.Worker.Extensions.Sql;
+using System.Net;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeFunctions
 {
     public static class EmployeeApi
     {
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder()
+        .SetBasePath(Environment.CurrentDirectory)
+        .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables()
+        .Build();
+
         // for testing purposes only. in a real setting use a db
         static List<Employee> employeesList = new();
+
 
         [FunctionName("GetEmployees")]
         public static async Task<IActionResult> GetEmployees(
@@ -44,29 +57,43 @@ namespace EmployeeFunctions
             return new OkObjectResult(employeeResult);
         }
 
+
         [FunctionName("CreateEmployee")]
         public static async Task<IActionResult> CreateEmployee(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "employee")] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("Creating Employee.");
+            log.LogInformation("Creating An Employee.");
 
             string requestData = await new StreamReader(req.Body).ReadToEndAsync();
 
             // deserialize into Employee Item
             var data = JsonConvert.DeserializeObject<CreateEmployeeItem>(requestData);
 
-            var emp = new Employee
+            // Retrieve connection string from configuration
+            string connectionString = Configuration.GetConnectionString("SqlConnectionString");
+
+            // Create a DbContext with the connection string
+            var options = new DbContextOptionsBuilder<EmployeeDbContext>()
+                .UseSqlServer(connectionString)
+                .Options;
+
+            using (var dbContext = new EmployeeDbContext(options))
             {
-                DOB = data.DOB,
-                FirstName = data.FirstName,
-                StartDate = data.StartDate,
-                EmployeeCode = data.EmployeeCode,
-            };
 
-            employeesList.Add(emp);
+                // Add a new employee entry
+                var newEmployee = new Employee
+                {
+                    DOB = data.DOB,
+                    FirstName = data.FirstName,
+                    LastName = data.LastName,
+                };
 
-            return new OkObjectResult(emp);
+                dbContext.EmployeeSet.Add(newEmployee);
+                await dbContext.SaveChangesAsync();
+            }        
+
+            return new OkObjectResult(data);
         }
 
         [FunctionName("PutEmployee")]
@@ -112,4 +139,5 @@ namespace EmployeeFunctions
 
         }
     }
+
 }
