@@ -8,7 +8,7 @@
 <p>Testing interaction with Azure Functions API.</p>
 
 <EditForm Model="createEmployee" OnValidSubmit="HandleCreate">
-    <InputDate class="form-control" @bind-Value="createEmployee.DOB"></InputDate>
+    <InputText class="form-control" @bind-Value="createEmployee.EmployeeCode"></InputText>
     <InputText class="form-control" @bind-Value="createEmployee.FirstName"></InputText>
     <InputText class="form-control" @bind-Value="createEmployee.LastName"></InputText>
     <br />

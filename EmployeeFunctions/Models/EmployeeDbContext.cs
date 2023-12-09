@@ -13,14 +13,17 @@ namespace EmployeeFunctions.Models
 
         public EmployeeDbContext(DbContextOptions<EmployeeDbContext> options) : base(options) { }
 
-        public DbSet<Employee> EmployeeSet { get; set; }
+        public DbSet<Employees> Employees { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Employees>().ToTable("Employees", schema: "dbo");
+
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EmployeeFunctions.Models
 {
-    public class Employee
+    public class Employees
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }

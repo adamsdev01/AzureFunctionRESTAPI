@@ -12,23 +12,24 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace EmployeeFunctions
 {
-    public static class EmployeeApi
+    public  class EmployeeApi
     {
-        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder()
-        .SetBasePath(Environment.CurrentDirectory)
-        .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-        .AddEnvironmentVariables()
-        .Build();
+        private readonly EmployeeDbContext _dbContext;
 
-        // for testing purposes only. in a real setting use a db
-        static List<Employee> employeesList = new();
+        public EmployeeApi(EmployeeDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        static List<Employees> employeesList = new();
 
 
         [FunctionName("GetEmployees")]
-        public static async Task<IActionResult> GetEmployees(
+        public async Task<IActionResult> GetEmployees(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "employee")] HttpRequest req,
             ILogger log)
         {
@@ -37,23 +38,11 @@ namespace EmployeeFunctions
             string requestData = await new StreamReader(req.Body).ReadToEndAsync();
 
             // deserialize into Employee Item
-            //var data = JsonConvert.DeserializeObject<CreateEmployeeItem>(requestData);
+            var data = JsonConvert.DeserializeObject<CreateEmployeeItem>(requestData);
 
-            // Retrieve connection string from configuration
-            string connectionString = Configuration.GetConnectionString("SqlConnectionString");
+            List<Employees> allEmployees = await _dbContext.Employees.ToListAsync();
 
-            // Create a DbContext with the connection string
-            var options = new DbContextOptionsBuilder<EmployeeDbContext>()
-                .UseSqlServer(connectionString)
-                .Options;
-
-            using (var dbContext = new EmployeeDbContext(options))
-            {
-                // Retrieve all employees
-                List<Employee> allEmployees = await dbContext.EmployeeSet.ToListAsync();
-                return new OkObjectResult(allEmployees);
-
-            }
+            return new OkObjectResult(allEmployees);
         }
 
         [FunctionName("GetEmployeeByEmployeeCode")]
@@ -76,7 +65,7 @@ namespace EmployeeFunctions
         [FunctionName("CreateEmployee")]
         public static async Task<IActionResult> CreateEmployee(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "employee")] HttpRequest req,
-            ILogger log)
+            ILogger log, EmployeeDbContext dbContext)
         {
             log.LogInformation("Creating An Employee.");
 
@@ -85,28 +74,33 @@ namespace EmployeeFunctions
             // deserialize into Employee Item
             var data = JsonConvert.DeserializeObject<CreateEmployeeItem>(requestData);
 
-            // Retrieve connection string from configuration
-            string connectionString = Configuration.GetConnectionString("SqlConnectionString");
+            //// Retrieve connection string from configuration
+            //string connectionString = Configuration.GetConnectionString("SqlConnectionString");
 
-            // Create a DbContext with the connection string
-            var options = new DbContextOptionsBuilder<EmployeeDbContext>()
-                .UseSqlServer(connectionString)
-                .Options;
+            //// Create a DbContext with the connection string
+            //var options = new DbContextOptionsBuilder<EmployeeDbContext>()
+            //    .UseSqlServer(connectionString)
+            //    .Options;
 
-            using (var dbContext = new EmployeeDbContext(options))
-            {
+            //using (var dbContext = new EmployeeDbContext(options))
+            //{
 
-                // Add a new employee entry
-                var newEmployee = new Employee
-                {
-                    DOB = data.DOB,
-                    FirstName = data.FirstName,
-                    LastName = data.LastName,
-                };
+            //    // Add a new employee entry
+            //    var newEmployee = new Employee
+            //    {
+            //        DOB = data.DOB,
+            //        FirstName = data.FirstName,
+            //        LastName = data.LastName,
+            //    };
 
-                dbContext.EmployeeSet.Add(newEmployee);
-                await dbContext.SaveChangesAsync();
-            }        
+            //    dbContext.EmployeeSet.Add(newEmployee);
+            //    await dbContext.SaveChangesAsync();
+            //}
+
+            var newEmployee = new Employees();
+
+            dbContext.Employees.Add(newEmployee);
+            await dbContext.SaveChangesAsync();
 
             return new OkObjectResult(data);
         }
